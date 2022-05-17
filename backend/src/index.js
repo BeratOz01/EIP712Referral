@@ -13,6 +13,8 @@ require("./db/mongoose");
 // Routes
 const userRouter = require("./routes/user");
 
+require("./utils/account");
+
 app.use("/api/user", userRouter);
 
 app.listen(port, () => {

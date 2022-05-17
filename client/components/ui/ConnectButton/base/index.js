@@ -20,17 +20,17 @@ const ConnectButton = ({ account, connect, web3 }) => {
     }
   };
   return (
-    <div className="mx-auto mt-5">
+    <div className="mx-auto">
       <span
-        className={`bg-zinc-800 inline-flex items-center p-3 montserrat text-white rounded-md text-sm hover:ring-4 ring-zinc-400 transition duration-700 w-64 justify-center ${
+        className={` bg-indigo-800 inline-flex items-center p-3 montserrat text-white rounded-md text-sm hover:ring-4 ring-indigo-400 transition duration-700 ${
           account?.data ? " cursor-default" : "cursor-pointer"
         }`}
         onClick={handleClick}
       >
-        {account?.data ? (
+        {account ? (
           <>
-            {String(account.data).slice(0, 10)}...
-            {String(account.data).slice(-6)}
+            {String(account).slice(0, 10)}...
+            {String(account).slice(-6)}
           </>
         ) : inProgress ? (
           "In Progress..."

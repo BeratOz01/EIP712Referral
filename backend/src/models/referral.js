@@ -18,6 +18,10 @@ const referralSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  signature: {
+    type: String,
+    required: true,
+  },
 });
 
 const Referral = new mongoose.model("Referral", referralSchema);

@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 // Configuration
 const { MONGODB_URL } = require("../config/index");
 
-// Colorful logging
-const clc = require("cli-color");
+// Helpers
+const { success, error } = require("../helpers/index");
 
 mongoose.connect(
   MONGODB_URL,
@@ -13,7 +13,7 @@ mongoose.connect(
     useNewUrlParser: true,
   },
   (err) => {
-    if (err) console.error(err);
-    else clc.red("MongoDB connected");
+    if (err) error(err);
+    else success("MongoDB connected");
   }
 );

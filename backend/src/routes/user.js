@@ -19,9 +19,12 @@ const { JWT_SECRET } = require("../config/index");
 // POST /api/user
 router.post("/", async (req, res) => {
   const { publicAddress } = req.body;
+  console.log(publicAddress);
   const user = new User({ publicAddress });
+
   await user.save((err, user) => {
     if (err) {
+      console.log(err);
       error("Error on creating user.");
       res.status(500).json({
         message: "Internal Server Error",
@@ -29,6 +32,7 @@ router.post("/", async (req, res) => {
       });
     } else {
       success("User created successfully.");
+      console.log(user);
       res.status(201).json({
         message: "User created",
         user,
@@ -56,7 +60,7 @@ router.get("/:publicAddress", async (req, res) => {
           user,
         });
       } else {
-        success("User not found.");
+        error("User not found.");
         res.status(404).json({
           message: "User not found",
           user: null,
@@ -94,12 +98,11 @@ router.post("/:publicAddress/signature", async (req, res) => {
 
         // Check if the address is the same as the one in the request
         if (address.toLowerCase() === publicAddress.toLowerCase()) {
-          // Create new user none and save it
-
           user.nonce = parseInt(Math.floor(Math.random() * 10100001010));
 
           user.save((err, user) => {
             if (err) {
+              console.log(err);
               error("Error on creating user.");
               res.status(500).json({
                 message: "Internal Server Error",
@@ -108,7 +111,6 @@ router.post("/:publicAddress/signature", async (req, res) => {
             }
           });
 
-          // Create JWT
           const token = jwt.sign(
             {
               _id: user._id,
@@ -117,7 +119,9 @@ router.post("/:publicAddress/signature", async (req, res) => {
             JWT_SECRET
           );
 
-          res.status(200).json({
+          success("Sended response with token");
+
+          res.status(200).send({
             error: null,
             token: `Bearer ${token}`,
             user: user,
