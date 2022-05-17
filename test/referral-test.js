@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-expressions */
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { BigNumber } = require("ethers");
 const signData = require("./helpers");
 
 // Helper function for parse BigNumber to int
