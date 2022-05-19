@@ -7,6 +7,12 @@ import { axiosClient } from "utils/axiosClient";
 import { Spinner } from "components/ui/Spinner";
 import { Modal } from "components/ui/Modal";
 
+// Helper
+import { createSignedData } from "utils/createSignedData";
+
+// Toast
+import { toast } from "react-toastify";
+
 const Create = ({ web3, contract, account }) => {
   const [loading, setLoading] = React.useState(true);
   const [data, setData] = React.useState(null);
@@ -16,7 +22,85 @@ const Create = ({ web3, contract, account }) => {
   const [success, setSuccess] = React.useState(null);
   const [transactionLoading, setTransactionLoading] = React.useState(false);
 
+  const [referree, setReferree] = React.useState("");
+  const [isValidAddress, setIsValidAddress] = React.useState(null);
   const [isValid, setIsValid] = React.useState();
+
+  const checkAddress = () => {
+    let isV = web3.utils.isAddress(referree);
+    setIsValidAddress(isV);
+  };
+
+  const onChange = (e) => {
+    setReferree(e.target.value);
+  };
+
+  const onSubmit = async () => {
+    if (isValidAddress == false || referree == "" || referree == account) {
+      toast.error("Please fill the from correctly", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+
+    let nowInUnix = Math.round(new Date().getTime() / 1000);
+
+    let chainId = await web3.eth.net.getId();
+    let address = contract._address;
+
+    let signature = createSignedData(
+      chainId,
+      address,
+      account,
+      referree,
+      nowInUnix,
+      web3,
+      account
+    );
+
+    // await axiosClient
+    //   .post(
+    //     "/referral/create",
+    //     {
+    //       to: referree,
+    //       signature: signature.result,
+    //       timestamp: (nowInUnix + 600).toString(),
+    //     },
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `${localStorage.getItem("access_token")}`,
+    //       },
+    //     }
+    //   )
+    //   .then((res) => {
+    //     toast.error("Invitation sended!!", {
+    //       position: "top-right",
+    //       autoClose: 5000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //       progress: undefined,
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     toast.error("An error occurred while sending invitation!", {
+    //       position: "top-right",
+    //       autoClose: 5000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //       progress: undefined,
+    //     });
+    //   });
+  };
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -89,11 +173,54 @@ const Create = ({ web3, contract, account }) => {
       ) : (
         <React.Fragment>
           {isValid ? (
-            <div className="text-center my-10">
-              <h1 className="text-2xl font-bold montserrat">
-                You are already registered as a Referrer
+            <React.Fragment>
+              <p className="text-center font-bold text-black montserrat text-4xl">
+                Create Referral
+              </p>
+              <h1 className="text-center montserrat w-6/12 mx-auto tracking-wide mt-4">
+                You are already registered as a Referrer. You can create
+                referrals for other users. So other users can use your referral
+                for get in. You can create referral as many as you want but only
+                5 of them can be submitted to the smart contract.
               </h1>
-            </div>
+              <div className="w-6/12 mx-auto mt-10 flex px-5 ">
+                <div className="w-full">
+                  <p className="text-black tracking-wider font-bold text-xl h-10 mb-0 montserrat">
+                    Referrer
+                  </p>
+                  <input
+                    disabled
+                    defaultValue={account}
+                    className="w-full flex mt-0 rounded-sm border-2 border-gray-200 h-10 px-5 focus:outline-none montserrat"
+                  />
+                  <p className="text-black tracking-wider font-bold text-xl h-10 mb-0 montserrat mt-5">
+                    Referree
+                  </p>
+                  <input
+                    className={`w-full flex mt-0 rounded-sm border-2 h-10 px-5 focus:outline-none montserrat  ${
+                      isValidAddress == true
+                        ? "border-green-500 border-2"
+                        : isValidAddress == false
+                        ? "border-red-500 border-2"
+                        : ""
+                    }`}
+                    onChange={onChange}
+                    onBlur={() => {
+                      if (referree == "") setIsValidAddress(null);
+                      else checkAddress();
+                    }}
+                  />
+                  <div
+                    className="w-4/12 bg-indigo-700 rounded-md flex mx-auto mt-6 cursor-pointer"
+                    onClick={onSubmit}
+                  >
+                    <p className="montserrat mx-auto font-bold text-white py-2 px-1">
+                      Submit
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </React.Fragment>
           ) : (
             <React.Fragment>
               <p className="text-center font-bold text-black montserrat text-4xl">
@@ -157,50 +284,14 @@ const Create = ({ web3, contract, account }) => {
                   </div>
                 </>
               ) : (
-                <div className="flex mx-auto w-8/12 mt-10 overflow-hidden">
-                  <div className="w-full bg-indigo-700 rounded-md  shadow-sm">
-                    <p className="montserrat text-xl tracking-wider text-center text-white py-4">
-                      You are have not any invitation
-                    </p>
-                  </div>
-                </div>
+                <React.Fragment></React.Fragment>
               )}
             </React.Fragment>
           )}
         </React.Fragment>
       )}
-      {/* <p className="text-center font-bold text-black montserrat text-4xl">
-        Submit Referral
-      </p>
-      <h1 className="text-center montserrat w-6/12 mx-auto tracking-wide mt-10">
-        In real life applications, users who have logged in before can create
-        referrals. But for this specific project we will just create a referral
-        for the account that is logged in for this demo.
-      </h1> */}
     </div>
   );
 };
 
 export default Create;
-
-/**
-       * <tr className="bg-white border-b  hover:bg-gray-50">
-                          <th
-                            scope="row"
-                            className="px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap"
-                          >
-                            Apple MacBook Pro 17"
-                          </th>
-                          <td className="px-6 py-4">Sliver</td>
-                          <td className="px-6 py-4">Laptop</td>
-                          <td className="px-6 py-4">$2999</td>
-                          <td className="px-6 py-4 text-right">
-                            <a
-                              href="#"
-                              className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                            >
-                              Accept
-                            </a>
-                          </td>
-                        </tr>
-       */

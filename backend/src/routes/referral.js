@@ -2,9 +2,10 @@ const router = require("express").Router();
 
 // MongoDB - User Model
 const Referral = require("../models/referral");
+const User = require("../models/user");
 
 // Helper functions - Colorful logging
-const { success, error } = require("../helpers/index");
+const { success, error, sendEmail } = require("../helpers/index");
 
 // Auth
 const { auth } = require("../middleware/auth");
@@ -33,6 +34,43 @@ router.get("/:publicAddress", auth, async (req, res) => {
     res.status(500).json({
       message: "Internal Server Error",
       error: e,
+    });
+  }
+});
+
+// POST /api/referral/create
+router.post("/create", auth, async (req, res) => {
+  try {
+    const { to, signature, timestamp } = req.body;
+
+    const from = req.user.publicAddress;
+
+    const referral = new Referral({
+      from,
+      to,
+      signature,
+      timestamp,
+    });
+
+    await referral.save();
+
+    const toUser = await User.findOne({ publicAddress: to });
+
+    if (toUser || toUser.mail !== "") {
+      sendEmail(
+        toUser.publicAddress,
+        `${from} has sent you a referral. Accept it from your dashboard.`
+      );
+    }
+
+    res.status(200).json({
+      message: "Referral sent successfully.",
+    });
+  } catch (e) {
+    error("Error on referral route");
+    res.status(500).json({
+      message: "Internal Server Error",
+      error: "Invalid request",
     });
   }
 });

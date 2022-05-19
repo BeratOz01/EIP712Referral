@@ -6,12 +6,14 @@ const nodemailer = require("nodemailer");
 
 const log = console.log;
 
+const { EMAIL, PASSWORD } = require("../config/index");
+
 function sendEmail(to, message) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "",
-      pass: "",
+      user: EMAIL,
+      pass: PASSWORD,
     },
     tls: {
       rejectUnauthorized: false,
@@ -19,7 +21,7 @@ function sendEmail(to, message) {
   });
 
   const mailOptions = {
-    from: "",
+    from: EMAIL,
     to,
     subject: "Referral",
     text: message,
