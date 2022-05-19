@@ -11,16 +11,18 @@ const auth = async (req, res, next) => {
     res.status(401).send({
       message: "No token, authorization denied",
     });
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err)
-      res.status(401).send({
-        message: "Token is not valid",
-      });
-
-    req.user = user;
-    next();
-  });
+  else {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err)
+        res.status(401).send({
+          message: "Token is not valid",
+        });
+      else {
+        req.user = user;
+        next();
+      }
+    });
+  }
 };
 
 module.exports = { auth };

@@ -6,7 +6,7 @@ import styles from "./style.module.css";
 // Components
 import MetamaskSVG from "components/ui/MetamaskSVG";
 
-const ConnectButton = ({ account, connect, web3 }) => {
+const ConnectButton = ({ account, connect }) => {
   const [inProgress, setInProgress] = React.useState(false);
 
   // Handle Click

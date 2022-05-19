@@ -12,10 +12,12 @@ require("./db/mongoose");
 
 // Routes
 const userRouter = require("./routes/user");
+const referralRouter = require("./routes/referral");
 
-require("./utils/account");
+require("./contract/index");
 
 app.use("/api/user", userRouter);
+app.use("/api/referral", referralRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

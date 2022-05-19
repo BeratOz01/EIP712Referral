@@ -1,7 +1,80 @@
+import React from "react";
+
+// Hooks
 import { useWeb3 } from "components/providers";
 
-const Hero = () => {
+// Components
+import { Spinner } from "components/ui/Spinner";
+
+// Axios Client
+import { axiosClient } from "utils/axiosClient";
+
+// Toastify
+import { toast } from "react-toastify";
+
+const Hero = ({ mail, loading, setMail }) => {
   const { contract } = useWeb3();
+
+  const [email, setEmail] = React.useState("");
+  const [isValidEmail, setIsValidEmail] = React.useState(null);
+
+  const checkEmail = () => {
+    const regex =
+      /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    if (!email || regex.test(email) === false) setIsValidEmail(false);
+    else setIsValidEmail(true);
+  };
+
+  const onChange = (e) => {
+    setEmail(e.target.value);
+    if (e.target.value == "") setIsValidEmail(null);
+    else checkEmail();
+  };
+
+  const onSubmit = async () => {
+    if (!isValidEmail) {
+      return;
+    }
+
+    await axiosClient
+      .post(
+        "/user/email",
+        {
+          email,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("access_token")}`,
+          },
+        }
+      )
+      .then(() => {
+        setMail(true);
+        toast.success("Email updated successfully", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Error updating email", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
+  };
+
   return (
     <div className="container mx-auto flex flex-col items-center py-12 sm:py-24 montserrat font-bold">
       <div className="w-11/12 sm:w-2/3 lg:flex justify-center items-center flex-col  mb-5 sm:mb-10">
@@ -41,6 +114,42 @@ const Hero = () => {
         >
           GitHub
         </button>
+      </div>
+      <div
+        className="bg-indigo-700 flex flex-col w-6/12 mx-auto mt-24 rounded px-4 py-2 justify-center"
+        style={mail ? { display: "none" } : {}}
+      >
+        {loading ? (
+          <div className="flex w-full mx-auto justify-center">
+            <Spinner />
+          </div>
+        ) : !mail ? (
+          <>
+            <p className="text-center text-white font-medium">
+              Enter your e-mail address to receive notifications
+            </p>
+            <input
+              className={`mt-2 rounded shadow-md h-10 px-2 text-md  focus:outline-none ${
+                isValidEmail == true
+                  ? "border-green-500 border-2"
+                  : isValidEmail == false
+                  ? "border-red-500 border-2"
+                  : ""
+              }`}
+              type="email"
+              placeholder="Your Email Address"
+              onChange={onChange}
+            />
+            <div
+              className="bg-white mx-auto mt-2 py-2 px-2 rounded-sm cursor-pointer"
+              onClick={onSubmit}
+            >
+              <p className="text-sm montserrat font-bold text-indigo-700">
+                Submit
+              </p>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

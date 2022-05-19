@@ -16,6 +16,8 @@ export default function Home() {
   const { connect, web3, contract } = useWeb3();
 
   const [show, setShow] = React.useState(false);
+  const [isHaveMail, setIsHaveMail] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const handleSignMessage = async (publicAddress, nonce) => {
@@ -40,6 +42,7 @@ export default function Home() {
         })
         .then((response) => {
           localStorage.setItem("access_token", response.data.token);
+          setIsHaveMail(response.data.user.mail.length == 0 ? false : true);
         })
         .catch((err) => {
           console.error(err);
@@ -54,9 +57,6 @@ export default function Home() {
           publicAddress: address,
         })
         .then(async (resp) => {
-          console.log(resp.data.user.nonce);
-          console.log(resp.data.user.publicAddress);
-
           let nonce = resp.data.user.nonce;
           let publicAddress = resp.data.user.publicAddress;
 
@@ -75,9 +75,12 @@ export default function Home() {
 
           let jwt = localStorage.getItem("access_token");
 
+          setIsHaveMail(resp.data.user.mail.length == 0 ? false : true);
+
           if (!jwt) handleSignMessage(publicAddress, nonce);
         })
         .catch((err) => {
+          console.log(err);
           let errorMessage = err.response.data.message;
           if (errorMessage === "User not found") handleSignUp(c);
         });
@@ -85,9 +88,11 @@ export default function Home() {
 
     if (account?.data && web3) {
       handleLogIn();
+      setLoading(false);
     }
   }, [account?.data, web3]);
 
+  const setMail = (val) => setIsHaveMail(val);
   return (
     <div className=" pb-12 overflow-y-hidden" style={{ minHeight: 700 }}>
       {/* Code block starts */}
@@ -144,29 +149,23 @@ export default function Home() {
               </button>
               <ul className="flex text-3xl montserrat tracking-wider md:text-base items-center py-5 md:flex flex-col md:flex-row justify-center fixed md:relative top-0 bottom-0 left-0 right-0 bg-white md:bg-transparent z-20 space-x-10">
                 <li className="text-gray-700 cursor-pointer text-base lg:text-lg pt-10 md:pt-0 hover:text-indigo-700 transition duration-200">
-                  <a href="javascript: void(0)">Home</a>
+                  <a href="/">Home</a>
                 </li>
                 <li className="text-gray-700 cursor-pointer text-base lg:text-lg pt-10 md:pt-0 hover:text-indigo-700 transition duration-200">
-                  <a href="javascript: void(0)">Create Referral</a>
+                  <a href="/">Referral</a>
                 </li>
               </ul>
             </div>
           </div>
           <button className="hidden md:block">
-            <ConnectButton
-              account={account?.data}
-              connect={connect}
-              web3={web3}
-            />
+            <ConnectButton account={account?.data} connect={connect} />
           </button>
         </div>
       </nav>
       <div>
-        <Hero />
+        <Hero mail={isHaveMail} loading={loading} setMail={setMail} />
       </div>
-      <div>
-        <Create account={account?.data} web3={web3} contract={contract} />
-      </div>
+      <Create account={account?.data} web3={web3} contract={contract} />
     </div>
   );
 }
