@@ -255,7 +255,6 @@ const Create = ({ web3, contract, account }) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {data?.length}
                         {data.map((item, index) => (
                           <tr
                             className="text-xs text-gray-700 dark:text-gray-400"

@@ -13,10 +13,7 @@ const ConnectButton = ({ account, connect }) => {
   const handleClick = () => {
     if (!account?.data) {
       setInProgress(true);
-      connect()
-        .then(() => handleSignup())
-        .catch(() => setInProgress(false))
-        .finally(() => setInProgress(false));
+      connect().finally(() => setInProgress(false));
     }
   };
   return (
