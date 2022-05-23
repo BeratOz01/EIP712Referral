@@ -1,4 +1,4 @@
-const createSignedData = (
+const createSignedData = async (
   chainId,
   address,
   referrer,
@@ -46,7 +46,7 @@ const createSignedData = (
 
   var params = [signer, data];
 
-  const sig = web3.currentProvider.sendAsync(
+  return await web3.currentProvider.send(
     {
       method: "eth_signTypedData_v4",
       params: params,
@@ -59,9 +59,6 @@ const createSignedData = (
       }
     }
   );
-
-  console.log(result.result);
-  return sig;
 };
 
 module.exports = { createSignedData };

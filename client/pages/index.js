@@ -17,7 +17,7 @@ export default function Home() {
 
   const [show, setShow] = React.useState(false);
   const [isHaveMail, setIsHaveMail] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const handleSignMessage = async (publicAddress, nonce) => {

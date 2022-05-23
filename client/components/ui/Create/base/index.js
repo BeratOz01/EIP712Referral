@@ -53,7 +53,7 @@ const Create = ({ web3, contract, account }) => {
     let chainId = await web3.eth.net.getId();
     let address = contract._address;
 
-    let signature = createSignedData(
+    let signature = await createSignedData(
       chainId,
       address,
       account,
@@ -63,43 +63,44 @@ const Create = ({ web3, contract, account }) => {
       account
     );
 
-    // await axiosClient
-    //   .post(
-    //     "/referral/create",
-    //     {
-    //       to: referree,
-    //       signature: signature.result,
-    //       timestamp: (nowInUnix + 600).toString(),
-    //     },
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `${localStorage.getItem("access_token")}`,
-    //       },
-    //     }
-    //   )
-    //   .then((res) => {
-    //     toast.error("Invitation sended!!", {
-    //       position: "top-right",
-    //       autoClose: 5000,
-    //       hideProgressBar: false,
-    //       closeOnClick: true,
-    //       pauseOnHover: true,
-    //       draggable: true,
-    //       progress: undefined,
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     toast.error("An error occurred while sending invitation!", {
-    //       position: "top-right",
-    //       autoClose: 5000,
-    //       hideProgressBar: false,
-    //       closeOnClick: true,
-    //       pauseOnHover: true,
-    //       draggable: true,
-    //       progress: undefined,
-    //     });
-    //   });
+    await axiosClient
+      .post(
+        "/referral/create",
+        {
+          to: referree,
+          signature: signature.result,
+          timestamp: (nowInUnix + 600).toString(),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${localStorage.getItem("access_token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        toast.success("Invitation sended!!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("An error occurred while sending invitation!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      });
   };
 
   React.useEffect(() => {
@@ -254,6 +255,7 @@ const Create = ({ web3, contract, account }) => {
                         </tr>
                       </thead>
                       <tbody>
+                        {data?.length}
                         {data.map((item, index) => (
                           <tr
                             className="text-xs text-gray-700 dark:text-gray-400"

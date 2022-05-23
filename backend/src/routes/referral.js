@@ -25,6 +25,7 @@ router.get("/:publicAddress", auth, async (req, res) => {
       }
 
       success("Referral(s) send successfully.");
+      console.log(referral.length);
       res.status(200).json({
         referral,
       });
@@ -56,17 +57,19 @@ router.post("/create", auth, async (req, res) => {
 
     const toUser = await User.findOne({ publicAddress: to });
 
-    if (toUser || toUser.mail !== "") {
-      sendEmail(
-        toUser.publicAddress,
-        `${from} has sent you a referral. Accept it from your dashboard.`
-      );
+    if (toUser) {
+      if (toUser.mail !== "")
+        sendEmail(
+          toUser.publicAddress,
+          `${from} has sent you a referral. Accept it from your dashboard.`
+        );
     }
 
     res.status(200).json({
       message: "Referral sent successfully.",
     });
   } catch (e) {
+    console.log(e);
     error("Error on referral route");
     res.status(500).json({
       message: "Internal Server Error",
